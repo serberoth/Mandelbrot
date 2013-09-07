@@ -1,0 +1,11 @@
+Simple Mandelbrot
+Written By: Serberoth
+------------------------------------------------------------
+This application plots a Mandelbrot set in two ways it
+plots a textual version of the Mandelbrot set and prints
+that out to the console and then it plots a graphical
+version of the same set and outputs that to a file named
+'output.png'.
+The graphical plot can be controlled by the 'plot.json'
+file.
+
