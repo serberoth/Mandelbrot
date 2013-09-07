@@ -9,46 +9,46 @@ import (
 )
 
 type Mandelbrot struct {
-  X, Y, Zoom float64
-  Iterations int
+	X, Y, Zoom float64
+	Iterations int
 }
 
 func (m Mandelbrot) colorAt(i int) color.Color {
-  r, g, b := HSVToRGB(1.0 - math.Mod(float64(i) / float64(m.Iterations) + 0.3333, 1.0), 1.0, 1.0)
-  return color.RGBA{ r, g, b, 255 }
+	r, g, b := HSVToRGB(1.0-math.Mod(float64(i)/float64(m.Iterations)+0.3333, 1.0), 1.0, 1.0)
+	return color.RGBA{r, g, b, 255}
 }
 
 func (m Mandelbrot) calculate(c complex128) color.Color {
-  limit := 2.0 * m.Zoom
-  z := complex(0.0, 0.0)
-  for i := 0; i < m.Iterations; i++ {
-    z = z * z + c
-    if cmplx.Abs(z) > limit {
-      return m.colorAt(i)
-    }
-  }
+	limit := 2.0 * m.Zoom
+	z := complex(0.0, 0.0)
+	for i := 0; i < m.Iterations; i++ {
+		z = z*z + c
+		if cmplx.Abs(z) > limit {
+			return m.colorAt(i)
+		}
+	}
 
-  return color.Black
+	return color.Black
 }
 
 func (m Mandelbrot) Plot(img *image.RGBA) {
-  bounds := img.Bounds()
+	bounds := img.Bounds()
 
-  ix, iy := LinearSpacing(m.X - m.Zoom, m.X + m.Zoom, bounds.Dx()),
-    LinearSpacing(m.Y - m.Zoom, m.Y + m.Zoom, bounds.Dy())
+	ix, iy := LinearSpacing(m.X-m.Zoom, m.X+m.Zoom, bounds.Dx()),
+		LinearSpacing(m.Y-m.Zoom, m.Y+m.Zoom, bounds.Dy())
 
-  for y, j := bounds.Min.Y, iy.Start; y < bounds.Max.Y; y, j = y + 1, j + iy.Step {
-    for x, i := bounds.Min.X, ix.Start; x < bounds.Max.X; x, i = x + 1, i + ix.Step {
-      img.Set(x, y, m.calculate(complex(i, j)))
-    }
-  }
+	for y, j := bounds.Min.Y, iy.Start; y < bounds.Max.Y; y, j = y+1, j+iy.Step {
+		for x, i := bounds.Min.X, ix.Start; x < bounds.Max.X; x, i = x+1, i+ix.Step {
+			img.Set(x, y, m.calculate(complex(i, j)))
+		}
+	}
 }
 
 func mandelbrot(c complex128) string {
-	a := []string{ "-", "+", "=", "#", "@", "$", "%", "&", "?", "!" }
+	a := []string{"-", "+", "=", "#", "@", "$", "%", "&", "?", "!"}
 	z := complex(0.0, 0.0)
 	for i := 0; i < 10; i++ {
-		z = z * z + c
+		z = z*z + c
 		if cmplx.Abs(z) > 2.0 {
 			// return "+"
 			return a[i]
@@ -74,12 +74,11 @@ func main() {
 
 	fmt.Printf("%s", s)
 
-  m := Mandelbrot{ -0.5, 0.0, 2.0, 256 }
+	m := Mandelbrot{-0.5, 0.0, 2.0, 256}
 
-  img := image.NewRGBA(image.Rect(0, 0, 1440, 900))
+	img := image.NewRGBA(image.Rect(0, 0, 1440, 900))
 
-  m.Plot(img)
+	m.Plot(img)
 
-  WritePNG(img, "output.png")
+	WritePNG(img, "output.png")
 }
-
