@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/color"
+	"io/ioutil"
 	"math"
 	"math/cmplx"
 )
@@ -13,17 +15,32 @@ type Mandelbrot struct {
 	Iterations int
 }
 
+func ReadMandelbrot(name string) (Mandelbrot, error) {
+	var m Mandelbrot
+
+	f, e := ioutil.ReadFile(name)
+	if e != nil {
+		return m, e
+	}
+
+	if e = json.Unmarshal(f, &m); e != nil {
+		return m, e
+	}
+
+	return m, nil
+}
+
 func (m Mandelbrot) colorAt(i int) color.Color {
 	r, g, b := HSVToRGB(1.0-math.Mod(float64(i)/float64(m.Iterations)+0.3333, 1.0), 1.0, 1.0)
 	return color.RGBA{r, g, b, 255}
 }
 
 func (m Mandelbrot) calculate(c complex128) color.Color {
-	limit := 2.0 * m.Zoom
-	z := complex(0.0, 0.0)
+	// limit := 2.0 * m.Zoom
+	z := complex(0.0, 0.0) // complex(m.X - m.Zoom, m.Y - m.Zoom)
 	for i := 0; i < m.Iterations; i++ {
 		z = z*z + c
-		if cmplx.Abs(z) > limit {
+		if cmplx.Abs(z) > 4.0 {
 			return m.colorAt(i)
 		}
 	}
@@ -34,6 +51,7 @@ func (m Mandelbrot) calculate(c complex128) color.Color {
 func (m Mandelbrot) Plot(img *image.RGBA) {
 	bounds := img.Bounds()
 
+	// TODO: This interval spacing is not correct for zooming
 	ix, iy := LinearSpacing(m.X-m.Zoom, m.X+m.Zoom, bounds.Dx()),
 		LinearSpacing(m.Y-m.Zoom, m.Y+m.Zoom, bounds.Dy())
 
@@ -71,11 +89,16 @@ func plot(x, y Interval) (s string) {
 
 func main() {
 	s := plot(Interval{-2.05, 1.05, 0.03}, Interval{-1.2, 1.2, 0.05})
-
 	fmt.Printf("%s", s)
 
-	m := Mandelbrot{-0.5, 0.0, 2.0, 256}
+	// m := Mandelbrot{-0.5, 0.0, 2.0, 256}
+	m, err := ReadMandelbrot("plot.json")
+	if err != nil {
+		fmt.Printf("Failed reading 'plot.json': %v\n", err)
+		return
+	}
 
+	// m := Mandelbrot{-1.4, 1.4, 0.09, 256}
 	img := image.NewRGBA(image.Rect(0, 0, 1440, 900))
 
 	m.Plot(img)
