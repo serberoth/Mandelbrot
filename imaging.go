@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+// HSVToRGB is a method that converts the provided HSV color scheme
+// values to the RGB color scheme.
 func HSVToRGB(h, s, v float64) (uint8, uint8, uint8) {
 	r, g, b := v, v, v
 	if s != 0.0 {
@@ -29,6 +31,9 @@ func HSVToRGB(h, s, v float64) (uint8, uint8, uint8) {
 	return uint8(r * 255.0), uint8(g * 255.0), uint8(b * 255.0)
 }
 
+// Write out the provided image to the provided filename as a PNG
+// graphics file.  Return error if any erros occurs during the
+// process writing/encoding the image file.
 func WritePNG(img image.Image, filename string) error {
 	writer, err := os.Create(filename)
 	if err != nil {
