@@ -15,7 +15,7 @@ import (
 // and colors determines the number of colors in the color
 // gradient.
 type Mandelbrot struct {
-	X, Y, Zoom float64
+	X, Y, Zoom         float64
 	Iterations, Colors int
 }
 
@@ -39,7 +39,7 @@ func ReadMandelbrot(name string) (Mandelbrot, error) {
 
 // Determine the color at the given iteration converting the HSV color to the RGB colorspace
 func (m Mandelbrot) colorAt(i int) color.Color {
-	r, g, b := HSVToRGB(1.0-math.Mod(float64(i % m.Colors)/float64(m.Colors)+0.3333, 1.0), 1.0, 1.0)
+	r, g, b := HSVToRGB(1.0-math.Mod(float64(i%m.Colors)/float64(m.Colors)+0.3333, 1.0), 1.0, 1.0)
 	return color.RGBA{r, g, b, 255}
 }
 
@@ -61,10 +61,10 @@ func (m Mandelbrot) Plot(img *image.RGBA) {
 	bounds := img.Bounds()
 
 	incrament := (4.0 / m.Zoom) / math.Max(float64(bounds.Dx()), float64(bounds.Dy()))
-	ix, iy := -((incrament * float64(bounds.Dx())) / 2.0) + m.X, -((incrament * float64(bounds.Dy())) / 2.0) + m.Y
+	ix, iy := -((incrament*float64(bounds.Dx()))/2.0)+m.X, -((incrament*float64(bounds.Dy()))/2.0)+m.Y
 
-	for y, j := bounds.Min.Y, iy; y < bounds.Max.Y; y, j = y + 1, j + incrament {
-		for x, i := bounds.Min.X, ix; x < bounds.Max.X; x, i = x + 1, i + incrament {
+	for y, j := bounds.Min.Y, iy; y < bounds.Max.Y; y, j = y+1, j+incrament {
+		for x, i := bounds.Min.X, ix; x < bounds.Max.X; x, i = x+1, i+incrament {
 			img.Set(x, y, m.calculate(complex(i, j)))
 		}
 	}
@@ -79,7 +79,7 @@ func mandelbrot(c complex128) string {
 		z = z*z + c
 		if cmplx.Abs(z) > 2.0 {
 			// return "+"
-			return a[i % len(a)]
+			return a[i%len(a)]
 		}
 	}
 
@@ -97,4 +97,3 @@ func plot(x, y Interval) (s string) {
 
 	return
 }
-
