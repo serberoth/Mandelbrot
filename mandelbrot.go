@@ -12,7 +12,7 @@ import (
 
 type Mandelbrot struct {
 	X, Y, Zoom float64
-	Iterations int
+	Iterations, Colors int
 }
 
 func ReadMandelbrot(name string) (Mandelbrot, error) {
@@ -31,13 +31,12 @@ func ReadMandelbrot(name string) (Mandelbrot, error) {
 }
 
 func (m Mandelbrot) colorAt(i int) color.Color {
-	r, g, b := HSVToRGB(1.0-math.Mod(float64(i)/float64(m.Iterations)+0.3333, 1.0), 1.0, 1.0)
+	r, g, b := HSVToRGB(1.0-math.Mod(float64(i % m.Colors)/float64(m.Colors)+0.3333, 1.0), 1.0, 1.0)
 	return color.RGBA{r, g, b, 255}
 }
 
 func (m Mandelbrot) calculate(c complex128) color.Color {
-	// limit := 2.0 * m.Zoom
-	z := complex(0.0, 0.0) // complex(m.X - m.Zoom, m.Y - m.Zoom)
+	z := complex(0.0, 0.0)
 	for i := 0; i < m.Iterations; i++ {
 		z = z*z + c
 		if cmplx.Abs(z) > 4.0 {
@@ -51,12 +50,11 @@ func (m Mandelbrot) calculate(c complex128) color.Color {
 func (m Mandelbrot) Plot(img *image.RGBA) {
 	bounds := img.Bounds()
 
-	// TODO: This interval spacing is not correct for zooming
-	ix, iy := LinearSpacing(m.X-m.Zoom, m.X+m.Zoom, bounds.Dx()),
-		LinearSpacing(m.Y-m.Zoom, m.Y+m.Zoom, bounds.Dy())
+	incrament := (4.0 / m.Zoom) / math.Max(float64(bounds.Dx()), float64(bounds.Dy()))
+	ix, iy := -((incrament * float64(bounds.Dx())) / 2.0) + m.X, -((incrament * float64(bounds.Dy())) / 2.0) + m.Y
 
-	for y, j := bounds.Min.Y, iy.Start; y < bounds.Max.Y; y, j = y+1, j+iy.Step {
-		for x, i := bounds.Min.X, ix.Start; x < bounds.Max.X; x, i = x+1, i+ix.Step {
+	for y, j := bounds.Min.Y, iy; y < bounds.Max.Y; y, j = y + 1, j + incrament {
+		for x, i := bounds.Min.X, ix; x < bounds.Max.X; x, i = x + 1, i + incrament {
 			img.Set(x, y, m.calculate(complex(i, j)))
 		}
 	}
@@ -98,7 +96,6 @@ func main() {
 		return
 	}
 
-	// m := Mandelbrot{-1.4, 1.4, 0.09, 256}
 	img := image.NewRGBA(image.Rect(0, 0, 1440, 900))
 
 	m.Plot(img)

@@ -1,7 +1,8 @@
 {
 	"X": -0.5,
 	"Y": 0.0,
-	"Zoom": 2.0,
-	"Iterations": 256
+	"Zoom": 1.0,
+	"Iterations": 500,
+	"Colors": 512
 }
 
